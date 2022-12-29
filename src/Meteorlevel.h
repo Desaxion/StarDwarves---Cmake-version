@@ -28,7 +28,7 @@ public:
 		for (Meteor m : meteors) {
 			m.meteorShader.use();
 			glm::mat4 model = glm::mat4(1.0f);
-	
+			
 			m.meteorShader.setMat4("model", model);
 			m.meteorShader.setMat4("projection", projection);
 			m.meteorShader.setMat4("view", view);

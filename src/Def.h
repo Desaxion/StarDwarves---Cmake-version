@@ -193,7 +193,7 @@ bool checkCollision(const Model& hitBox, const Level& theLevel) {
 			glm::vec3 start = theLevel.meshes[i].vertices[k].Position;
 
 
-			start = glm::vec3(1.0f);
+			//start = glm::vec3(1.0f);
 
 			glm::vec3 endX = glm::vec3(start) + glm::vec3(1000.0f, 0.0f ,0.0f);
 			glm::vec3 endY = glm::vec3(start) + glm::vec3(0.0f, 1000.0f, 0.0f);
@@ -259,3 +259,30 @@ bool checkCollision(const Model& hitBox, const Level& theLevel) {
 	return false;
 }
 
+//The hitbox should really be integrated within the ship class but I cant get it to work rn.
+void calculateHitbox(float deltaTime, Model& hitBox, Shader& hitBoxShader, const glm::vec2& shipPosition) {
+	//Calculating shipangles
+	glm::mat4 model = glm::mat4(1.0f);
+
+	glm::vec3 shipAngles = ship.shipAngles();
+
+
+
+	model = glm::translate(model, glm::vec3(shipPosition, 0.0f));
+	model = glm::rotate(model, shipAngles.y, glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, -shipAngles.x, glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, shipAngles.z, glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::scale(model, glm::vec3(scale));
+
+
+	for (int i = 0; i < hitBox.meshes.size(); i++) {
+		for (int k = 0; k < hitBox.meshes[i].vertices.size(); k++) {
+			glm::vec3 vertex = hitBox.meshes[i].vertices[k].Position;
+			glm::vec4 transformedVertex = model * glm::vec4(vertex, 1.0);
+
+			hitBox.meshes[i].vertices[k].Position = glm::vec3(transformedVertex.x, transformedVertex.y, transformedVertex.z);
+		}
+	}
+
+	hitBoxShader.setMat4("model", model);
+}

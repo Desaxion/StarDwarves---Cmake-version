@@ -55,6 +55,8 @@ int main() {
 	Model reticleModel("../assets/models/reticle/reticlenew.obj");
 	Shader reticleShader("../src/shaders/reticle.vs", "../src/shaders/reticle.fs");
 
+	Model hitBoxModel = Model("../assets/models/shiphitbox/ShipHitBox.obj");
+	Shader hitBoxShader("../src/shaders/hitbox.vs", "../src/shaders/hitbox.fs");
 	//The hitboxmodel is included within the ship so that its position can be calculated at the same time as the ship.
 
 
@@ -133,7 +135,7 @@ int main() {
 	while(!glfwWindowShouldClose(window)) { //Check if window is instructed to close
 		//We redraw screen every frame, thus we clear the screen in beginning of every loop iteration
 		
-		if (checkCollision(ship.hitBox, *selectedLevel)) {
+		if (checkCollision(hitBoxModel, *selectedLevel)) {
 			std::cout << "COLLISION\n";
 		}
 		else {
@@ -173,24 +175,25 @@ int main() {
 		shipShader.setMat4("view", view);
 
 		// render the loaded model
-	
+		glm::vec2 shipPosition = ship.calculateShipPosition(deltaTime);
 
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(ship.calculateShipPosition(deltaTime), 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::translate(model, glm::vec3(shipPosition, 0.0f)); // translate it down so it's at the center of the scene
 		model = glm::rotate(model, shipAngles.y , glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, -shipAngles.x, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::rotate(model, shipAngles.z, glm::vec3(0.0f, 0.0f, 1.0f));
 		model = glm::scale(model, glm::vec3(scale));	// it's a bit too big for our scene, so scale it down
 		shipShader.setMat4("model", model);
 
-
-
 		shipModel.Draw(shipShader);
 		
 		hitBoxShader.use();
-		hitBoxShader.setBool("showHitBox", showHitBox);
 
-		ship.hitBox.Draw(hitBoxShader);
+		calculateHitbox(deltaTime, hitBoxModel, hitBoxShader, shipPosition);
+		hitBoxShader.setBool("showHitBox", showHitBox);
+		hitBoxShader.setMat4("projection", projection);
+		hitBoxShader.setMat4("view", view);
+		hitBoxModel.Draw(hitBoxShader);
 
 		
 		skyBoxShader.use();
