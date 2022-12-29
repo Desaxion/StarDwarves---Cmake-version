@@ -55,6 +55,11 @@ int main() {
 	Model reticleModel("../assets/models/reticle/reticlenew.obj");
 	Shader reticleShader("../src/shaders/reticle.vs", "../src/shaders/reticle.fs");
 
+	Model hitBoxModel("../assets/models/shiphitbox/ShipHitBox.obj");
+	Shader hitBoxShader("../src/shaders/hitbox.vs", "../src/shaders/hitbox.fs");
+
+
+
 	//Tell OpenGL first the position coordinates for lower left point of the viewport relative to the window, and then the size of the viewport
 	glViewport(0, 0, WIDTH, HEIGHT); //Position coordinates for lower left corner go from 0 to 1
 
@@ -129,6 +134,15 @@ int main() {
 
 	while(!glfwWindowShouldClose(window)) { //Check if window is instructed to close
 		//We redraw screen every frame, thus we clear the screen in beginning of every loop iteration
+		
+		if (checkCollision(hitBoxModel, *selectedLevel)) {
+			std::cout << "COLLISION\n";
+		}
+		else {
+			std::cout << "NO COLLISION\n";
+		}
+
+
 
 		//calculating time variables
 		float currentFrame = static_cast<float>(glfwGetTime());
@@ -157,11 +171,8 @@ int main() {
 
 		float time = (float)glfwGetTime();
 
-
 		shipShader.setMat4("projection", projection);
 		shipShader.setMat4("view", view);
-
-
 
 		// render the loaded model
 	
@@ -178,6 +189,17 @@ int main() {
 
 		shipModel.Draw(shipShader);
 		
+		hitBoxShader.use();
+
+		hitBoxShader.setMat4("projection", projection);
+		hitBoxShader.setMat4("view", view);
+		hitBoxShader.setMat4("model", model);
+		
+		
+		hitBoxShader.setBool("showHitBox", showHitBox);
+
+		hitBoxModel.Draw(hitBoxShader);
+
 		
 		skyBoxShader.use();
 
@@ -197,18 +219,19 @@ int main() {
 		reticleShader.setMat4("projection", projection);
 		reticleShader.setMat4("view", view);
 		reticleModel.Draw(reticleShader);
+		
+		
 		//Process input
-
 		//Render Level
 		selectedLevel->generate();
-		selectedLevel->draw();
+		selectedLevel->draw(projection, view);
 
 		//Display title screen
 
 		//view controls, highscore and such
 
 		//PLAY
-		// Select level ----> Less go
+		// Select level ----> Lets go
 		//Epic gaming
 
 		
