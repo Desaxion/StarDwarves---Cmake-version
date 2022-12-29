@@ -20,6 +20,10 @@
 #include <iostream>
 #include <map>
 #include <vector>
+
+#include "BoundingBox.h"
+
+
 using namespace std;
 
 unsigned int TextureFromFile(const char* path, const string& directory, bool gamma = false);
@@ -46,6 +50,93 @@ public:
         for (unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].Draw(shader);
     }
+
+    void buildBoundingBox() {
+
+
+       /* glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, Position);
+        model = glm::rotate(model, Rotation.x, glm::vec3(1, 0, 0));
+        model = glm::rotate(model, Rotation.y, glm::vec3(0, 1, 0));
+        model = glm::rotate(model, Rotation.z, glm::vec3(0, 0, 1));
+        model = glm::scale(model, Scale);
+        */
+
+
+
+        float maxX = 0.0f, minX = 0.0f,
+              maxY = 0.0f, minY = 0.0f,
+              maxZ = 0.0f, minZ = 0.0f;
+
+        for (int i = 0; i < meshes.size(); i++) {
+            for (int k = 0; k < meshes[i].vertices.size(); k++) {
+                //Go through all vertices and find the points farthest away from anyone.
+                if (meshes[i].vertices[k].Position.x > maxX) {
+                    maxX = meshes[i].vertices[k].Position.x;
+                }
+                else if(meshes[i].vertices[k].Position.x < minX){
+                    minX = meshes[i].vertices[k].Position.x;
+                }
+
+                if (meshes[i].vertices[k].Position.x > maxY) {
+                    maxY = meshes[i].vertices[k].Position.x;
+                }
+                else if (meshes[i].vertices[k].Position.x < minY) {
+                    minY = meshes[i].vertices[k].Position.x;
+                }
+
+                if (meshes[i].vertices[k].Position.x > maxZ) {
+                    maxZ = meshes[i].vertices[k].Position.x;
+                }
+                else if (meshes[i].vertices[k].Position.x < minZ) {
+                    minZ = meshes[i].vertices[k].Position.x;
+                }
+            }
+        }
+
+        boundingBox.setMin(glm::vec3(minX, minY, minZ));
+        boundingBox.setMax(glm::vec3(maxX, maxY, maxZ));
+ 
+    }
+
+    //This item updates the model, and returns the new model matrix
+    glm::mat4 update(glm::vec3 _pos, glm::vec3 _rot, glm::vec3 _scale) {
+    
+        Position = _pos;
+        Rotation = _rot;
+        Scale = _scale;
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, Position);
+        model = glm::rotate(model, Rotation.x, glm::vec3(1, 0, 0));
+        model = glm::rotate(model, Rotation.y, glm::vec3(0, 1, 0));
+        model = glm::rotate(model, Rotation.z, glm::vec3(0, 0, 1));
+        model = glm::scale(model, Scale);
+   
+        for (int i = 0; i < meshes.size(); i++) {
+
+            for (int k = 0; k < meshes[i].vertices.size(); k++) {
+
+                //THIS RIGHT HERE IS THE PROBLEM BUT NOT SURE WHY YET
+                glm::vec4 temp = glm::vec4(meshes[i].vertices[k].Position, 1.0);
+                temp = model * temp; //applying the transform on every vertex in the model
+                meshes[i].vertices[k].Position = glm::vec3(temp.x, temp.y, temp.z);
+
+            }
+        }
+
+        return model;
+
+    }
+
+
+    BoundingBox boundingBox;
+
+    //is this necessary?
+    glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f); //random position, this is just for debug
+    glm::vec3 Rotation = glm::vec3(0.0f, 0.0f, 0.0f); //Rotation around its own axis
+    glm::vec3 Scale = glm::vec3(1.0f);
+
 
 private:
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.

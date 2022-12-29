@@ -134,14 +134,26 @@ int main() {
 
 	while(!glfwWindowShouldClose(window)) { //Check if window is instructed to close
 		//We redraw screen every frame, thus we clear the screen in beginning of every loop iteration
-		
-		if (checkCollision(hitBoxModel, *selectedLevel)) {
-			std::cout << "COLLISION\n";
-		}
-		else {
-			std::cout << "NO COLLISION\n";
+		for (auto bb : selectedLevel->boundingBoxes) {
+		std::cout << "(" << bb.getMin().x << "," << bb.getMin().y << "," << bb.getMin().z << "," << "), (" << bb.getMax().x << "," << bb.getMax().y << "," << bb.getMax().z << ")\n";
 		}
 
+		glm::vec4 metColor = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
+
+		if (collisionCheck(hitBoxModel, selectedLevel)) {
+			
+
+			metColor = glm::vec4(0.7f, 0.3f, 0.2f,1.0f);
+
+			
+
+			//std::cout << "COLLISION\n";
+		}
+		else {
+			//std::cout << "NO COLLISION\n";
+			metColor = glm::vec4(0.8f, 0.7f, 0.2f,1.0f);
+		}
+		
 
 
 		//calculating time variables
@@ -166,23 +178,20 @@ int main() {
 
 		float viewamount = 0.25f;
 
-		view = glm::rotate(view, -shipAngles.y*viewamount, glm::vec3(1.0f, 0.0f, 0.0f));
-		view = glm::rotate(view, shipAngles.x*viewamount, glm::vec3(0.0f, 1.0f, 0.0f));
+		view = glm::rotate(view, -shipAngles.x*viewamount, glm::vec3(1.0f, 0.0f, 0.0f));
+		view = glm::rotate(view, -shipAngles.y*viewamount, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		float time = (float)glfwGetTime();
 
+		//Set correct projection
 		shipShader.setMat4("projection", projection);
 		shipShader.setMat4("view", view);
 
-		// render the loaded model
-		glm::vec2 shipPosition = ship.calculateShipPosition(deltaTime);
+		glm::vec3 shipPosition = glm::vec3(ship.calculateShipPosition(deltaTime), 0.0f);
 
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(shipPosition, 0.0f)); // translate it down so it's at the center of the scene
-		model = glm::rotate(model, shipAngles.y , glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, -shipAngles.x, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, shipAngles.z, glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, glm::vec3(scale));	// it's a bit too big for our scene, so scale it down
+		//std::cout << "(" << hitBoxModel.meshes[2].vertices[0].Position.x << "," << hitBoxModel.meshes[2].vertices[0].Position.y << ")" << "\n";
+
+		glm::mat4 model = shipModel.update(shipPosition, shipAngles, glm::vec3(scale));
 		shipShader.setMat4("model", model);
 
 		shipModel.Draw(shipShader);
@@ -194,11 +203,13 @@ int main() {
 		hitBoxShader.setMat4("projection", projection);
 		hitBoxShader.setMat4("view", view);
 		hitBoxModel.Draw(hitBoxShader);
-
 		
+		
+
 		skyBoxShader.use();
 
 
+		//no need to update this
 		glm::mat4 skymodel = glm::mat4(1.0f);
 		skymodel = glm::translate(skymodel, glm::vec3(0.0f, 0.0f, 0.0f));
 		skyBoxShader.setMat4("projection", projection);
@@ -208,8 +219,9 @@ int main() {
 		
 
 		reticleShader.use();
-		glm::mat4 reticleTrans = glm::mat4(1.0f);
-		reticleTrans = glm::translate(reticleTrans, glm::vec3(ship.reticlePosition,-5.0f));
+		
+		//reticleTrans = glm::translate(reticleTrans, glm::vec3(ship.reticlePosition,-5.0f));
+		glm::mat4 reticleTrans = reticleModel.update(glm::vec3(ship.reticlePosition, -5.0f),glm::vec3(0.0), glm::vec3(1.0f));
 		reticleShader.setMat4("reticleTrans", reticleTrans);
 		reticleShader.setMat4("projection", projection);
 		reticleShader.setMat4("view", view);
@@ -218,9 +230,26 @@ int main() {
 		
 		//Process input
 		//Render Level
-		selectedLevel->generate();
-		selectedLevel->draw(projection, view);
+		selectedLevel->update();
+		//meteorlevel.meteors[0].meteorShader.setVec4("metColor", metColor);
 
+	/*	for (auto bb : selectedLevel->boundingBoxes) {
+			
+			if (bb.isInsideBoundingBox(shipPosition)) {
+				std::cout << "COLLISION\n";
+			}
+			else {
+				std::cout << "NO COLLISION\n";
+			}
+
+
+			//std::cout << "(" << bb.getMin().x << "," << bb.getMin().y << "," << bb.getMin().z << "," << "), (" << bb.getMax().x <<"," << bb.getMax().y << "," << bb.getMax().z << ")\n";
+		}*/
+		selectedLevel->draw(projection, view, metColor);
+
+	
+
+		
 		//Display title screen
 
 		//view controls, highscore and such

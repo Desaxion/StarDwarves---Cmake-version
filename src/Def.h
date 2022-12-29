@@ -177,6 +177,8 @@ int mollerTrumbore(const glm::vec3 start, const glm::vec3 end, std::vector<glm::
 
 
 //Checking for collisions between a hitbox and meshes in a specified level. Returns true if hitbox has collided with any item in the level.
+
+//NOT WORKING PROPERLY. USE COLLISIONCHECK INSTEAD
 bool checkCollision(const Model& hitBox, const Level& theLevel) {
 	//Important to note: Every vertex in a mesh is counted three times, since it is shared by three traingles. It is probably possible to find a way to ounly count each vertex once, but I don't really have
 	//the time or resources to do that.
@@ -259,30 +261,36 @@ bool checkCollision(const Model& hitBox, const Level& theLevel) {
 	return false;
 }
 
+
+bool collisionCheck(const Model& hitBox,  Level* theLevel) {
+	for (int j = 0; j < theLevel->boundingBoxes.size(); j++) {
+		for (int i = 0; i < hitBox.meshes.size(); i++) {
+			for (int k = 0; k < hitBox.meshes[i].vertices.size(); k++) {
+				if (theLevel->boundingBoxes[j].isInsideBoundingBox(hitBox.meshes[i].vertices[k].Position)) {
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+
+}
+
+
+
 //The hitbox should really be integrated within the ship class but I cant get it to work rn.
+//This is also probably wrong :(
 void calculateHitbox(float deltaTime, Model& hitBox, Shader& hitBoxShader, const glm::vec2& shipPosition) {
 	//Calculating shipangles
-	glm::mat4 model = glm::mat4(1.0f);
+
 
 	glm::vec3 shipAngles = ship.shipAngles();
 
 
+	//REDUNDAT, REPLACE WITH update() from model
 
-	model = glm::translate(model, glm::vec3(shipPosition, 0.0f));
-	model = glm::rotate(model, shipAngles.y, glm::vec3(1.0f, 0.0f, 0.0f));
-	model = glm::rotate(model, -shipAngles.x, glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::rotate(model, shipAngles.z, glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::scale(model, glm::vec3(scale));
-
-
-	for (int i = 0; i < hitBox.meshes.size(); i++) {
-		for (int k = 0; k < hitBox.meshes[i].vertices.size(); k++) {
-			glm::vec3 vertex = hitBox.meshes[i].vertices[k].Position;
-			glm::vec4 transformedVertex = model * glm::vec4(vertex, 1.0);
-
-			hitBox.meshes[i].vertices[k].Position = glm::vec3(transformedVertex.x, transformedVertex.y, transformedVertex.z);
-		}
-	}
+	glm::mat4 model = hitBox.update(glm::vec3(shipPosition, 0.0f), shipAngles, glm::vec3(scale));
 
 	hitBoxShader.setMat4("model", model);
 }

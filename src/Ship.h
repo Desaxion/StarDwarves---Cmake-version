@@ -132,7 +132,7 @@ public:
 		
 		float alpha = (spacePosition.x - reticlePosition.x)*turnRatio;
 
-		return glm::vec3(phi, theta, alpha);
+		return glm::vec3(theta, -phi, alpha);
 	}
 
 
