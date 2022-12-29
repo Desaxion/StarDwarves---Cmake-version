@@ -1,5 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
+#include "Model.h"
+#include "Shader.h"
 
 const float scale = 0.05;
 
@@ -18,9 +20,9 @@ public:
 
 
 
-	Ship() {
+	Ship() {	
+	};
 
-	}
 	glm::vec2 spacePosition = glm::vec2(0, 0);
 	glm::vec2 reticlePosition = glm::vec2(0, 0);
 
@@ -130,6 +132,31 @@ public:
 
 		return glm::vec3(phi, theta, alpha);
 	}
+
+
+	void calculateHitbox() {
+		glm::mat4 model = glm::mat4(1.0f);
+
+		glm::vec3 shipAngles = shipAngles();
+
+		model = glm::translate(model, glm::vec3(ship.calculateShipPosition(deltaTime), 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, shipAngles.y, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, -shipAngles.x, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, shipAngles.z, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(scale));
+
+		hitBoxShader.setMat4("projection", projection);
+		hitBoxShader.setMat4("view", view);
+		hitBoxShader.setMat4("model", model);
+	}
+	
+
+
+
+
+
+	Shader hitBoxShader("../src/shaders/hitbox.vs", "../src/shaders/hitbox.fs");
+	Model hitBox = Model("../assets/models/shiphitbox/ShipHitBox.obj");
 
 private:
 

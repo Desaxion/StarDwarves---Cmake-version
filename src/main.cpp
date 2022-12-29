@@ -55,9 +55,7 @@ int main() {
 	Model reticleModel("../assets/models/reticle/reticlenew.obj");
 	Shader reticleShader("../src/shaders/reticle.vs", "../src/shaders/reticle.fs");
 
-	Model hitBoxModel("../assets/models/shiphitbox/ShipHitBox.obj");
-	Shader hitBoxShader("../src/shaders/hitbox.vs", "../src/shaders/hitbox.fs");
-
+	//The hitboxmodel is included within the ship so that its position can be calculated at the same time as the ship.
 
 
 	//Tell OpenGL first the position coordinates for lower left point of the viewport relative to the window, and then the size of the viewport
@@ -135,7 +133,7 @@ int main() {
 	while(!glfwWindowShouldClose(window)) { //Check if window is instructed to close
 		//We redraw screen every frame, thus we clear the screen in beginning of every loop iteration
 		
-		if (checkCollision(hitBoxModel, *selectedLevel)) {
+		if (checkCollision(ship.hitBox, *selectedLevel)) {
 			std::cout << "COLLISION\n";
 		}
 		else {
@@ -190,15 +188,9 @@ int main() {
 		shipModel.Draw(shipShader);
 		
 		hitBoxShader.use();
-
-		hitBoxShader.setMat4("projection", projection);
-		hitBoxShader.setMat4("view", view);
-		hitBoxShader.setMat4("model", model);
-		
-		
 		hitBoxShader.setBool("showHitBox", showHitBox);
 
-		hitBoxModel.Draw(hitBoxShader);
+		ship.hitBox.Draw(hitBoxShader);
 
 		
 		skyBoxShader.use();

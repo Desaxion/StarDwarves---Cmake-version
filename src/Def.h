@@ -192,6 +192,9 @@ bool checkCollision(const Model& hitBox, const Level& theLevel) {
 
 			glm::vec3 start = theLevel.meshes[i].vertices[k].Position;
 
+
+			start = glm::vec3(1.0f);
+
 			glm::vec3 endX = glm::vec3(start) + glm::vec3(1000.0f, 0.0f ,0.0f);
 			glm::vec3 endY = glm::vec3(start) + glm::vec3(0.0f, 1000.0f, 0.0f);
 			glm::vec3 endZ = glm::vec3(start) + glm::vec3(0.0f, 0.0f, 1000.0f);
@@ -218,6 +221,7 @@ bool checkCollision(const Model& hitBox, const Level& theLevel) {
 					If intersected twice -> No hit.
 
 			*/
+			int it = 0;
 
 			for (int j = 0; j < hitBox.meshes.size(); j++) {
 				//iterate across triangles, doing this by iterating across three vertices at a time.
@@ -225,15 +229,19 @@ bool checkCollision(const Model& hitBox, const Level& theLevel) {
 				int intersectionsY = 0; //intersections along Y-vector
 				int intersectionsZ = 0; //intersections along Z-vector
 
+				it++;
 				for (int v = 0; v < hitBox.meshes[j].vertices.size(); v += 3) {
-
-					std::vector<glm::vec3> vertices = { hitBox.meshes[j].vertices[v].Position,
-														hitBox.meshes[j].vertices[v + 1].Position,	
-														hitBox.meshes[j].vertices[v + 2].Position };
+				
+					std::vector<glm::vec3> triangleVertices = { hitBox.meshes[j].vertices[v].Position,
+																hitBox.meshes[j].vertices[v + 1].Position,	
+																hitBox.meshes[j].vertices[v + 2].Position };
+					//std::cout << hitBox.meshes[2].vertices[0].Position.x << "\n";
+					if (it == 2) {
 					
-					intersectionsX += mollerTrumbore(start, endX, vertices);
-					intersectionsY += mollerTrumbore(start, endY, vertices);
-					intersectionsZ += mollerTrumbore(start, endZ, vertices);
+					}
+					intersectionsX += mollerTrumbore(start, endX, triangleVertices);
+					intersectionsY += mollerTrumbore(start, endY, triangleVertices);
+					intersectionsZ += mollerTrumbore(start, endZ, triangleVertices);
 				}
 
 				if (intersectionsX % 2 == 1) {
