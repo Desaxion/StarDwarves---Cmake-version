@@ -14,6 +14,7 @@ public:
 		Meteor newMet;
 		glm::mat4 model = newMet.theMeteor.update(newMet.Position, newMet.Rotation, newMet.Scale);
 
+
 		meteors.push_back(newMet);
 		
 		
@@ -30,7 +31,15 @@ public:
 
 			meteors[i].meteorShader.setVec4("metColor", metColor);
 
-			glm::mat4 model = meteors[i].theMeteor.update(meteors[i].Position, meteors[i].Position, meteors[i].Scale);
+			//glm::mat4 model = meteors[i].theMeteor.update(meteors[i].Position, meteors[i].Position, meteors[i].Scale);
+
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, meteors[i].Position);
+			model = glm::rotate(model, meteors[i].Rotation.x, glm::vec3(1, 0, 0));
+			model = glm::rotate(model, meteors[i].Rotation.y, glm::vec3(0, 1, 0));
+			model = glm::rotate(model, meteors[i].Rotation.z, glm::vec3(0, 0, 1));
+			model = glm::scale(model, meteors[i].Scale);
+
 			meteors[i].meteorShader.setMat4("model", model);
 			meteors[i].meteorShader.setMat4("projection", projection);
 			meteors[i].meteorShader.setMat4("view", view);
@@ -45,7 +54,7 @@ public:
 		
 		for (int i = 0; i < meteors.size(); i++) {
 			//glm::mat4 temp = meteors[i].theMeteor.update(meteors[i].theMeteor.Position, meteors[i].theMeteor.Position, meteors[i].theMeteor.Scale);
-			meteors[i].theMeteor.update(meteors[i].Position, meteors[i].Rotation, meteors[i].Scale);
+			//meteors[i].theMeteor.update(meteors[i].Position, meteors[i].Rotation, meteors[i].Scale);
 			meteors[i].theMeteor.buildBoundingBox();
 			boundingBoxes.push_back(meteors[i].theMeteor.boundingBox);
 		}

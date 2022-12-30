@@ -10,7 +10,7 @@ public:
 	};
 	glm::vec3 Position = glm::vec3(0.0f,0.0f, 0.0f); //random position, this is just for debug
 	glm::vec3 Rotation = glm::vec3(0.0f, 0.0f, 0.0f); //Rotation around its own axis
-	glm::vec3 Scale = glm::vec3(1.0f);
+	glm::vec3 Scale = glm::vec3(2.0f);
 
 	//Model theMeteor = Model("../assets/models/meteoritebase/meteoritebase.obj");
 	Model theMeteor = Model("../assets/models/box/box.obj");

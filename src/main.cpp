@@ -134,9 +134,9 @@ int main() {
 
 	while(!glfwWindowShouldClose(window)) { //Check if window is instructed to close
 		//We redraw screen every frame, thus we clear the screen in beginning of every loop iteration
-		for (auto bb : selectedLevel->boundingBoxes) {
-		std::cout << "(" << bb.getMin().x << "," << bb.getMin().y << "," << bb.getMin().z << "," << "), (" << bb.getMax().x << "," << bb.getMax().y << "," << bb.getMax().z << ")\n";
-		}
+		//for (auto bb : selectedLevel->boundingBoxes) {
+		//std::cout << "(" << bb.getMin().x << "," << bb.getMin().y << "," << bb.getMin().z << "," << "), (" << bb.getMax().x << "," << bb.getMax().y << "," << bb.getMax().z << ")\n";
+		//}
 
 		glm::vec4 metColor = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
 
@@ -203,11 +203,8 @@ int main() {
 		hitBoxShader.setMat4("projection", projection);
 		hitBoxShader.setMat4("view", view);
 		hitBoxModel.Draw(hitBoxShader);
-		
-		
 
 		skyBoxShader.use();
-
 
 		//no need to update this
 		glm::mat4 skymodel = glm::mat4(1.0f);
@@ -231,24 +228,8 @@ int main() {
 		//Process input
 		//Render Level
 		selectedLevel->update();
-		//meteorlevel.meteors[0].meteorShader.setVec4("metColor", metColor);
 
-	/*	for (auto bb : selectedLevel->boundingBoxes) {
-			
-			if (bb.isInsideBoundingBox(shipPosition)) {
-				std::cout << "COLLISION\n";
-			}
-			else {
-				std::cout << "NO COLLISION\n";
-			}
-
-
-			//std::cout << "(" << bb.getMin().x << "," << bb.getMin().y << "," << bb.getMin().z << "," << "), (" << bb.getMax().x <<"," << bb.getMax().y << "," << bb.getMax().z << ")\n";
-		}*/
 		selectedLevel->draw(projection, view, metColor);
-
-	
-
 		
 		//Display title screen
 
@@ -257,9 +238,6 @@ int main() {
 		//PLAY
 		// Select level ----> Lets go
 		//Epic gaming
-
-		
-		
 		
 		glfwSwapBuffers(window); //Swaps buffers so it can begin writing to one buffer and reading from the other
 		glfwPollEvents(); //Check if glfw events are triggered (such as mouse and keyboard input)
