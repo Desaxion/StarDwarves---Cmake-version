@@ -11,7 +11,11 @@ public:
 
 	virtual void update() = 0;
 
-	float speed = 5.0f; //this should go faster if the player has played good
+	float speed = 4.0f; //this should go faster if the player has played good
+
+	void updateSpeed(float scalingFactor) {
+		speed += speed * scalingFactor * 0.000002;
+	}
 
 	std::vector<Mesh> meshes; //Meshes inside the level
 

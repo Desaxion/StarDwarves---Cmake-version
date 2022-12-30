@@ -7,13 +7,21 @@
 #include "Ship.h"
 #include "Level.h"
 #include "Model.h"
-
+#include <time.h>
+#include <chrono> //milliseconds
+#include <cstdint>
 
 #define MACOS false
 
 
 const float EPSILON = 0.00000001;
 
+long long startMS;
+
+time_t start;
+time_t runtime() {
+	return time(NULL) - start;
+}
 
 const unsigned int DEFAULT_WIDTH  = 1000;
 const unsigned int DEFAULT_HEIGHT = 1000;
@@ -293,4 +301,19 @@ void calculateHitbox(float deltaTime, Model& hitBox, Shader& hitBoxShader, const
 	glm::mat4 model = hitBox.update(glm::vec3(shipPosition, 0.0f), shipAngles, glm::vec3(scale));
 
 	hitBoxShader.setMat4("model", model);
+}
+
+float frac(float x) {
+	return x - (int)x;
+}
+
+float truncatedTrig(float x) {
+	return frac(sin(x)*1000000000);
+}
+
+//Returns application runtime in ms
+float runtimeMS() {
+	//std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	auto time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	return time_since_epoch - startMS;
 }

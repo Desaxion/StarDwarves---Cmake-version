@@ -17,6 +17,9 @@ const unsigned int HEIGHT = DEFAULT_HEIGHT; //1000
 
 
 int main() {
+	time(&start);//starts timer in s and ms
+	startMS = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
 
 	//Begin with instantiating the window
 	glfwInit(); //Tell compiler to initialize GLFW for usage
@@ -134,9 +137,15 @@ int main() {
 
 	while(!glfwWindowShouldClose(window)) { //Check if window is instructed to close
 		//We redraw screen every frame, thus we clear the screen in beginning of every loop iteration
+		selectedLevel->updateSpeed(runtime());
+		
+		
+		
 		//for (auto bb : selectedLevel->boundingBoxes) {
 		//std::cout << "(" << bb.getMin().x << "," << bb.getMin().y << "," << bb.getMin().z << "," << "), (" << bb.getMax().x << "," << bb.getMax().y << "," << bb.getMax().z << ")\n";
 		//}
+
+
 
 		glm::vec4 metColor = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
 
@@ -177,10 +186,10 @@ int main() {
 		glm::vec3 shipAngles = ship.shipAngles();
 
 		float viewamount = 0.25f;
-
+		/*
 		view = glm::rotate(view, -shipAngles.x*viewamount, glm::vec3(1.0f, 0.0f, 0.0f));
 		view = glm::rotate(view, -shipAngles.y*viewamount, glm::vec3(0.0f, 1.0f, 0.0f));
-
+		*/
 		float time = (float)glfwGetTime();
 
 		//Set correct projection
@@ -241,11 +250,13 @@ int main() {
 		
 		glfwSwapBuffers(window); //Swaps buffers so it can begin writing to one buffer and reading from the other
 		glfwPollEvents(); //Check if glfw events are triggered (such as mouse and keyboard input)
-
+	
 	}
 
 	//Destroy all things related to glfw and close the program
 	glfwTerminate();
+	std::cout << "Application runtime: " << runtime() << " seconds. " << std::endl;
+
 	return 0;
 }
 
