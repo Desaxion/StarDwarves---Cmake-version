@@ -101,29 +101,78 @@ public:
 
     //This item updates the model, and returns the new model matrix
     glm::mat4 update(glm::vec3 _pos, glm::vec3 _rot, glm::vec3 _scale) {
-    
-        Position = _pos;
-        Rotation = _rot;
-        Scale = _scale;
 
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, Position);
-        model = glm::rotate(model, Rotation.x, glm::vec3(1, 0, 0));
-        model = glm::rotate(model, Rotation.y, glm::vec3(0, 1, 0));
-        model = glm::rotate(model, Rotation.z, glm::vec3(0, 0, 1));
-        model = glm::scale(model, Scale);
+    
+        bool updatePosition = false;
+        if(Position != _pos){
+        Position = _pos;
+        updatePosition = true;
+        }
+
+        if (updatePosition) {
+            model = glm::translate(model, Position);
+        }
+
+
+        bool updateRotation = false;
+        if(Rotation != _rot){
+        Rotation = _rot;
+        updateRotation = true;
+        }
+
+        if (updateRotation) {
+            model = glm::rotate(model, Rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, Rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::rotate(model, Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+        }
+    
+
+   
+        bool updateScale = false;
+        if(Scale !=_scale){
+        Scale = _scale;
+        updateScale = true;
+        }
+        
+       
+        if (updateScale) {
+            model = glm::scale(model, _scale);
+        }
+       // model = glm::scale(model, _scale);
+        //dont update the matrix in vain
+     
+ 
+      
    
         for (int i = 0; i < meshes.size(); i++) {
-
             for (int k = 0; k < meshes[i].vertices.size(); k++) {
 
                 //THIS RIGHT HERE IS THE PROBLEM BUT NOT SURE WHY YET
-                glm::vec4 temp = glm::vec4(meshes[i].vertices[k].Position, 1.0);
-                temp = model * temp; //applying the transform on every vertex in the model
-                meshes[i].vertices[k].Position = glm::vec3(temp.x, temp.y, temp.z);
-
+               // glm::vec4 temp = glm::vec4(meshes[i].vertices[k].Position, 1.0);
+               // temp = model * temp; //applying the transform on every vertex in the model
+               // meshes[i].vertices[k].Position = glm::vec3(temp.x, temp.y, temp.z);
+                //std::cout << meshes[i].vertices[k].Position.x << "\n";
             }
         }
+/*
+        if (!updatePosition) {
+            model = glm::translate(model, Position);
+        }
+        if (!updateRotation) {
+            model = glm::rotate(model, Rotation.x, glm::vec3(1, 0, 0));
+            model = glm::rotate(model, Rotation.y, glm::vec3(0, 1, 0));
+            model = glm::rotate(model, Rotation.z, glm::vec3(0, 0, 1));
+        }
+        if (!updateScale) {
+            
+        }
+        */
+       // model = glm::scale(model, _scale);
+        if (!updateScale) {
+            model = glm::scale(model, _scale);
+        }
+
 
         return model;
 
@@ -141,7 +190,7 @@ public:
 
             for (int k = 0; k < meshes[i].vertices.size(); k++) {
                 glm::vec4 temp = glm::vec4(meshes[i].vertices[k].Position, 1.0);
-                temp = model * temp; //applying the transform on every vertex in the model
+              //  temp = model * temp; //applying the transform on every vertex in the model
                 meshes[i].vertices[k].Position = glm::vec3(temp.x, temp.y, temp.z);
 
             }

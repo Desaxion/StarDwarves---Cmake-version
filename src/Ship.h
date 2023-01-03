@@ -135,6 +135,7 @@ public:
 		return glm::vec3(theta, -phi, alpha);
 	}
 
+	glm::vec3 shipScale = glm::vec3(0.05f);
 
 private:
 

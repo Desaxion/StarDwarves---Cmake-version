@@ -162,6 +162,8 @@ float noise1( float x )
 
     n0 = grad1( perm[ ix0 ], fx0 );
     n1 = grad1( perm[ ix1 ], fx1 );
+
+ 
     return 0.188f * ( LERP( s, n0, n1 ) );
 }
 

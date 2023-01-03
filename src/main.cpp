@@ -63,6 +63,7 @@ int main() {
 	//The hitboxmodel is included within the ship so that its position can be calculated at the same time as the ship.
 
 
+
 	//Tell OpenGL first the position coordinates for lower left point of the viewport relative to the window, and then the size of the viewport
 	glViewport(0, 0, WIDTH, HEIGHT); //Position coordinates for lower left corner go from 0 to 1
 
@@ -139,7 +140,7 @@ int main() {
 		//We redraw screen every frame, thus we clear the screen in beginning of every loop iteration
 		selectedLevel->updateSpeed(runtime());
 		
-		
+	
 		
 		//for (auto bb : selectedLevel->boundingBoxes) {
 		//std::cout << "(" << bb.getMin().x << "," << bb.getMin().y << "," << bb.getMin().z << "," << "), (" << bb.getMax().x << "," << bb.getMax().y << "," << bb.getMax().z << ")\n";
@@ -162,6 +163,8 @@ int main() {
 			//std::cout << "NO COLLISION\n";
 			metColor = glm::vec4(0.8f, 0.7f, 0.2f,1.0f);
 		}
+
+		
 		
 
 
@@ -198,16 +201,18 @@ int main() {
 
 		glm::vec3 shipPosition = glm::vec3(ship.calculateShipPosition(deltaTime), 0.0f);
 
-		//std::cout << "(" << hitBoxModel.meshes[2].vertices[0].Position.x << "," << hitBoxModel.meshes[2].vertices[0].Position.y << ")" << "\n";
-
-		glm::mat4 model = shipModel.update(shipPosition, shipAngles, glm::vec3(scale));
+		//std::cout << "(" << shipModel.meshes[2].vertices[0].Position.x << "," << shipModel.meshes[2].vertices[0].Position.y << "," << shipModel.meshes[2].vertices[0].Position.z << ")" << "\n";
+		//std::cout << "(" << hitBoxModel.meshes[0].vertices[17].Position.x << "," << hitBoxModel.meshes[0].vertices[17].Position.y << "," << hitBoxModel.meshes[0].vertices[17].Position.z << ")" << "\n";
+		//std::cout << "(" << shipAngles.x << ", " << shipAngles.y << ", " << shipAngles.z << ")\n";
+	//	std::cout << "(" << hitBoxModel.Position.x << ", " << hitBoxModel.Position.y << ", " << hitBoxModel.Position.z << ")\n";
+		//std::cout << "(" << shipPosition.x << ", " << shipPosition.y << ", " << shipPosition.z << ")\n";
+		glm::mat4 model = shipModel.update(shipPosition, shipAngles, glm::vec3(ship.shipScale));
 		shipShader.setMat4("model", model);
 
 		shipModel.Draw(shipShader);
 		
 		hitBoxShader.use();
-
-		calculateHitbox(deltaTime, hitBoxModel, hitBoxShader, shipPosition);
+		calculateHitbox(hitBoxModel, hitBoxShader, shipPosition, shipAngles);
 		hitBoxShader.setBool("showHitBox", showHitBox);
 		hitBoxShader.setMat4("projection", projection);
 		hitBoxShader.setMat4("view", view);

@@ -86,6 +86,11 @@ void processInput(GLFWwindow* window) {
 		showHitBox = !showHitBox;
 	}
 
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+		std::cout << "DEBUG. PLACE BREAKPOINT HERE!" << "\n";
+	}
+
+
 	//move the ship
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 		ship.manuvre(ship.RIGHT, deltaTime);
@@ -289,26 +294,18 @@ bool collisionCheck(const Model& hitBox,  Level* theLevel) {
 
 //The hitbox should really be integrated within the ship class but I cant get it to work rn.
 //This is also probably wrong :(
-void calculateHitbox(float deltaTime, Model& hitBox, Shader& hitBoxShader, const glm::vec2& shipPosition) {
+void calculateHitbox(Model& hitBox, Shader& hitBoxShader, const glm::vec2& shipPosition,glm::vec3 shipAngles) {
 	//Calculating shipangles
 
-
-	glm::vec3 shipAngles = ship.shipAngles();
-
-
 	//REDUNDAT, REPLACE WITH update() from model
-
-	glm::mat4 model = hitBox.update(glm::vec3(shipPosition, 0.0f), shipAngles, glm::vec3(scale));
-
+	glm::mat4 model = hitBox.update(glm::vec3(shipPosition, 0.0f), shipAngles, glm::vec3(ship.shipScale));
+	
 	hitBoxShader.setMat4("model", model);
 }
 
-float frac(float x) {
-	return x - (int)x;
-}
 
 float truncatedTrig(float x) {
-	return frac(sin(x)*1000000000);
+	return glm::fract(sin(x)*1000000000);
 }
 
 //Returns application runtime in ms
@@ -316,4 +313,62 @@ float runtimeMS() {
 	//std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	auto time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	return time_since_epoch - startMS;
+}
+
+
+
+
+
+glm::vec2 random2(glm::vec2 st)
+{
+	st = glm::vec2(glm::dot(st, glm::vec2(127.1, 311.7)),
+		glm::dot(st, glm::vec2(269.5, 183.3)));
+	return glm::vec2(-1.0 + 2.0 * glm::fract(sin(st.s) * 43758.5453123), -1.0 + 2.0 * glm::fract(sin(st.t) * 43758.5453123));
+}
+
+// Gradient Noise by Inigo Quilez - iq/2013
+// https://www.shadertoy.com/view/XdXGW8
+float noise(glm::vec2 st)
+{
+	glm::vec2 i = floor(st);
+	glm::vec2 f = fract(st);
+
+	glm::vec2 u = glm::vec2(f.s * f.s * (3.0 - 2.0 * f.s), f.t * f.t * (3.0 - 2.0 * f.t));
+
+	return  glm::mix(glm::mix(glm::dot(random2(i + glm::vec2(0.0, 0.0)), f - glm::vec2(0.0, 0.0)),
+			glm::dot(random2(i + glm::vec2(1.0, 0.0)), f - glm::vec2(1.0, 0.0)), u.x),
+			glm::mix(glm::dot(random2(i + glm::vec2(0.0, 1.0)), f - glm::vec2(0.0, 1.0)),
+			glm::dot(random2(i + glm::vec2(1.0, 1.0)), f - glm::vec2(1.0, 1.0)), u.x), u.y);
+}
+
+glm::vec3 random3(glm::vec3 st)
+{
+	st = glm::vec3(glm::dot(st, glm::vec3(127.1, 311.7, 543.21)),
+		glm::dot(st, glm::vec3(269.5, 183.3, 355.23)),
+		glm::dot(st, glm::vec3(846.34, 364.45, 123.65))); // Haphazard additional numbers by IR
+	return glm::vec3( -1.0 + 2.0 * glm::fract(sin(st.x) * 43758.5453123), -1.0 + 2.0 * glm::fract(sin(st.y) * 43758.5453123), -1.0 + 2.0 * glm::fract(sin(st.z) * 43758.5453123));
+}
+
+// Gradient Noise by Inigo Quilez - iq/2013
+// https://www.shadertoy.com/view/XdXGW8
+// Trivially extended to 3D by Ingemar
+float gradientNoise(glm::vec3 st)
+{
+	glm::vec3 i = floor(st);
+	glm::vec3 f = fract(st);
+
+	glm::vec3 u = glm::vec3(f.x * f.x * (3.0 - 2.0 * f.x), f.y * f.y * (3.0 - 2.0 * f.y), f.z * f.z * (3.0 - 2.0 * f.z));
+
+	return glm::mix(
+		   glm::mix(glm::mix(glm::dot(random3(i + glm::vec3(0.0, 0.0, 0.0)), f - glm::vec3(0.0, 0.0, 0.0)),
+		   glm::dot(random3(i + glm::vec3(1.0, 0.0, 0.0)), f - glm::vec3(1.0, 0.0, 0.0)), u.x),
+		   glm::mix(glm::dot(random3(i + glm::vec3(0.0, 1.0, 0.0)), f - glm::vec3(0.0, 1.0, 0.0)),
+		   glm::dot(random3(i + glm::vec3(1.0, 1.0, 0.0)), f - glm::vec3(1.0, 1.0, 0.0)), u.x), u.y),
+
+		   glm::mix(glm::mix(glm::dot(random3(i + glm::vec3(0.0, 0.0, 1.0)), f - glm::vec3(0.0, 0.0, 1.0)),
+		   glm::dot(random3(i + glm::vec3(1.0, 0.0, 1.0)), f - glm::vec3(1.0, 0.0, 1.0)), u.x),
+		   glm::mix(glm::dot(random3(i + glm::vec3(0.0, 1.0, 1.0)), f - glm::vec3(0.0, 1.0, 1.0)),
+	       glm::dot(random3(i + glm::vec3(1.0, 1.0, 1.0)), f - glm::vec3(1.0, 1.0, 1.0)), u.x), u.y), u.z
+
+	);
 }

@@ -6,31 +6,46 @@
 
 class Meteorlevel : public Level
 {
-public: 
+public:
 
-	int numberOfMeteorsLimit = 100;
-	float spawInterval = 1.5;
-
+	int numberOfMeteorsLimit = 50;
+	int milliSecsBetweenSpawns = 800;
+	int spawnCluster = 3;
 	int prevSpawnTime = 0;
 
 	std::vector<Meteor> meteors;
 
-	void generate() override{
+	void generate() override {
 		//Make sure that the meteor is actually to be spawned. This will only spawn one meteor at a time.
-		if(meteors.size() < numberOfMeteorsLimit && prevSpawnTime != runtimeMS()){
 			//Make the spawn random
+		if (meteors.size() < numberOfMeteorsLimit && prevSpawnTime != runtimeMS()) {
+			for (int k = 0; k < spawnCluster; k++) {
+				Meteor newMet;
+				//glm::mat4 model = newMet.theMeteor.update(newMet.Position, newMet.Rotation, newMet.Scale);
+				prevSpawnTime = runtimeMS();
 
-		Meteor newMet;
-		glm::mat4 model = newMet.theMeteor.update(newMet.Position, newMet.Rotation, newMet.Scale);
-		prevSpawnTime = runtimeMS();
+				meteors.push_back(newMet);
 
-		meteors.push_back(newMet);
-		
-		
-			for(int i = 0; i < newMet.theMeteor.meshes.size(); i++){
-				meshes.push_back(newMet.theMeteor.meshes[i]); //Adding the meshes of each meteor in to the level so that we can check for collision
+
+				for (int i = 0; i < newMet.theMeteor.meshes.size(); i++) {
+					meshes.push_back(newMet.theMeteor.meshes[i]); //Adding the meshes of each meteor in to the level so that we can check for collision
+				}
+
 			}
-		
+			/*
+			if (meteors.size() == 0) {
+				Meteor newMet;
+				glm::mat4 model = newMet.theMeteor.update(newMet.Position, newMet.Rotation, newMet.Scale);
+				prevSpawnTime = runtimeMS();
+
+				meteors.push_back(newMet);
+
+
+				for (int i = 0; i < newMet.theMeteor.meshes.size(); i++) {
+					meshes.push_back(newMet.theMeteor.meshes[i]); //Adding the meshes of each meteor in to the level so that we can check for collision
+				}
+			}*/
+
 		}
 	}
 
@@ -50,10 +65,16 @@ public:
 			model = glm::rotate(model, meteors[i].Rotation.z, glm::vec3(0, 0, 1));
 			model = glm::scale(model, meteors[i].Scale);
 
-			//meteors[i].meteorShader.setVec3("normal", meteors[i].theMeteor.meshes[0].)
+		/*	for (int k = 0; k < meteors[i].theMeteor.meshes[0].vertices.size(); k++) {
+				meteors[i].meteorShader.setVec3("normal", meteors[i].theMeteor.meshes[0].vertices[k].Normal;)
+			}*/
+
+			meteors[i].meteorShader.setVec3("shipDirection", ship.shipDirection());
+
 			meteors[i].meteorShader.setMat4("model", model);
 			meteors[i].meteorShader.setMat4("projection", projection);
 			meteors[i].meteorShader.setMat4("view", view);
+
 			meteors[i].theMeteor.Draw(meteors[i].meteorShader);
 		}
 	}
@@ -61,7 +82,7 @@ public:
 	void update() override {
 
 		generate();
-		boundingBoxes.clear();
+		//boundingBoxes.clear();
 
 		std::vector<Meteor>::iterator it = meteors.begin();
 		for (int i = 0; i < meteors.size(); i++) {
@@ -72,15 +93,16 @@ public:
 			if (it != meteors.end()) {
 			meteors[i].Position.z += speed * deltaTime;
 			meteors[i].Rotation += glm::vec3(1.0) * deltaTime;
-		
+			//Rotation will also have to affect the normals!!
 
 
+
+			//This will be implemented if it needs to have better collision capability
+			// 
 			//glm::mat4 temp = meteors[i].theMeteor.update(meteors[i].theMeteor.Position, meteors[i].theMeteor.Position, meteors[i].theMeteor.Scale);
-			meteors[i].theMeteor.update(meteors[i].Position, meteors[i].Rotation, meteors[i].Scale);
-			meteors[i].theMeteor.buildBoundingBox();
-			boundingBoxes.push_back(meteors[i].theMeteor.boundingBox);
-
-			
+			//meteors[i].theMeteor.update(meteors[i].Position, meteors[i].Rotation, meteors[i].Scale);
+			//meteors[i].theMeteor.buildBoundingBox();
+			//boundingBoxes.push_back(meteors[i].theMeteor.boundingBox);
 				it++;
 			}
 			
