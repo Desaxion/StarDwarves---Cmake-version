@@ -13,6 +13,7 @@
 
 #define MACOS false
 
+glm::vec3 lightDirection = glm::normalize(glm::vec3(2, 1, 0));
 
 const float EPSILON = 0.00000001;
 

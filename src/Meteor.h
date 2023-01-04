@@ -9,37 +9,32 @@ public:
 	float msScale = 0.1;
 	float noise1Scale = 5;
 	float MakeItSmaller = 0.3f;
-
+ 
 	Meteor() {
 	//Generate random shape
 	//Generate random position and rotation speed
 	//Calculate the correct normals (so that the displacement is correct).
-		for (int i = 0; i < theMeteor.meshes[0].vertices.size(); i++) {
-			//Calculating the direction from the midpoint of the meteor to the vertex
-			theMeteor.meshes[0].vertices[i].Normal = glm::vec3(theMeteor.meshes[0].vertices[i].Position - Position);
-
-		}
-
+	
 		//The individual seed of the meteor is set as the runtime
 		displace(runtimeMS());
 
 	};
 	glm::vec3 Position = glm::vec3(0.0, 0.0, 0.0f);//
 	glm::vec3 Rotation = glm::vec3(0.0, 0.0, 0.0);// 
-	glm::vec3 Scale = glm::vec3(0.50);//glm::vec3(noise1(runtime() + runtimeMS() * msScale));
+	glm::vec3 Scale = glm::vec3(0.50);//glm::vec3(noise1(runtme() + runtimeMS() * msScale));
 	
 
 	float displacementVelocity = 0;
 	int octaves = 8;
 
-	float displacementScaling = 10;
+	float displacementScaling = 15;
 
 	//Generates the random shape for the meteorite.
 	void displace(float individualSeed) {
 		//This is redundant for making the whole thing displaced.
 		Position = glm::vec3(noise1(runtime() + runtimeMS() * msScale) * noise1Scale - cos(runtimeMS()), noise1((runtime() + runtimeMS() * msScale) + 44) * noise1Scale, -10.0f); //random position
-		Rotation = glm::vec3(noise1(runtime() + runtimeMS() * msScale) * noise1Scale * noise1Scale, noise1(runtime() + runtimeMS() * msScale), noise1(runtime() + runtimeMS() * msScale) * noise1Scale); //Rotation around its own axis
-		Scale = glm::vec3(noise1(runtime() + runtimeMS() * msScale + 2.7)*noise1Scale*MakeItSmaller);
+		Rotation = glm::vec3(noise1(runtime() + runtimeMS() * msScale) * noise1Scale * noise1Scale + runtimeMS(), noise1(runtime() + runtimeMS() * msScale) + runtimeMS()/4.0, noise1(runtime() + runtimeMS() * msScale) * noise1Scale); //Rotation around its own axis
+		Scale = glm::vec3(abs(noise1(runtime() + runtimeMS() * msScale + 2.7))*noise1Scale*MakeItSmaller);
 	
 		glm::vec3 tempPos = theMeteor.meshes[0].vertices[0].Position;
 
@@ -48,13 +43,8 @@ public:
 		for (int i = 0; i < theMeteor.meshes[0].vertices.size(); i++) {
 			
 			float displacement = 0.0f;
-	
+			glm::vec3 displacementDirection = glm::vec3(theMeteor.meshes[0].vertices[i].Position - Position);
 		
-			//Choose all vertexes in the same spot, Aka, find all other vertices in the same spot.
-			for (int n = 0; n < theMeteor.meshes[0].vertices.size(); n++) {
-
-			}
-
 
 			//The model contains 3-4 vertices in each position, and a vertex is only part of one (?) triangle, therefore a vertex group needs to be modified.
 			for (int k = 1; k < octaves + 1; k++) {
@@ -65,7 +55,7 @@ public:
 				
 			}
 
-			theMeteor.meshes[0].vertices[i].Position += displacement * normalize(theMeteor.meshes[0].vertices[i].Normal) * displacementScaling;//The displacement is added in the direction of the normal 
+			theMeteor.meshes[0].vertices[i].Position += displacement * normalize(displacementDirection) * displacementScaling;//The displacement is added in the direction of the normal 
 	
 		}
 

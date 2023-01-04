@@ -155,7 +155,7 @@ public:
                 //std::cout << meshes[i].vertices[k].Position.x << "\n";
             }
         }
-/*
+
         if (!updatePosition) {
             model = glm::translate(model, Position);
         }
@@ -164,10 +164,7 @@ public:
             model = glm::rotate(model, Rotation.y, glm::vec3(0, 1, 0));
             model = glm::rotate(model, Rotation.z, glm::vec3(0, 0, 1));
         }
-        if (!updateScale) {
-            
-        }
-        */
+      
        // model = glm::scale(model, _scale);
         if (!updateScale) {
             model = glm::scale(model, _scale);

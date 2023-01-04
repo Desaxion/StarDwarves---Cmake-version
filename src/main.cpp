@@ -14,6 +14,7 @@
 const unsigned int WIDTH = DEFAULT_WIDTH;	//1000
 const unsigned int HEIGHT = DEFAULT_HEIGHT; //1000
 
+#define skybox
 
 
 int main() {
@@ -51,6 +52,12 @@ int main() {
 	////LOADING IN SHIP
 	Model shipModel("../assets/models/ship/ship.obj");
 	Shader shipShader("../src/shaders/ship.vs", "../src/shaders/ship.fs");
+	Shader engineShader("../src/shaders/shipEngine.vs", "../src/shaders/shipEngine.fs");
+
+	ship.shipModel = &shipModel;
+	ship.mainShader = &shipShader;
+
+	ship.engineShader = &engineShader;
 
 	Model skyBoxModel("../assets/models/skyBox/skyBoxModel.obj");
 	Shader skyBoxShader("../src/shaders/skyBox.vs", "../src/shaders/skyBox.fs");
@@ -175,7 +182,7 @@ int main() {
 
 		processInput(window);
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); //Specify the color of the cleariness
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //Specify the color of the cleariness
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Specify which buffer we clear (the others are GL_STENCIL_BUFFER_BIT and GL_DEPTH_BUFFER_BIT)
 		
 		//glBindVertexArray(VAO);	//Specify upcoming objects to be rendered
@@ -185,19 +192,13 @@ int main() {
 		// view/projection transformations
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
-
 		glm::vec3 shipAngles = ship.shipAngles();
-
 		float viewamount = 0.25f;
 		/*
 		view = glm::rotate(view, -shipAngles.x*viewamount, glm::vec3(1.0f, 0.0f, 0.0f));
 		view = glm::rotate(view, -shipAngles.y*viewamount, glm::vec3(0.0f, 1.0f, 0.0f));
 		*/
 		float time = (float)glfwGetTime();
-
-		//Set correct projection
-		shipShader.setMat4("projection", projection);
-		shipShader.setMat4("view", view);
 
 		glm::vec3 shipPosition = glm::vec3(ship.calculateShipPosition(deltaTime), 0.0f);
 
@@ -206,17 +207,21 @@ int main() {
 		//std::cout << "(" << shipAngles.x << ", " << shipAngles.y << ", " << shipAngles.z << ")\n";
 	//	std::cout << "(" << hitBoxModel.Position.x << ", " << hitBoxModel.Position.y << ", " << hitBoxModel.Position.z << ")\n";
 		//std::cout << "(" << shipPosition.x << ", " << shipPosition.y << ", " << shipPosition.z << ")\n";
-		glm::mat4 model = shipModel.update(shipPosition, shipAngles, glm::vec3(ship.shipScale));
-		shipShader.setMat4("model", model);
 
-		shipModel.Draw(shipShader);
-		
+		glm::mat4 model = shipModel.update(shipPosition, shipAngles, glm::vec3(ship.shipScale));
+	
+		ship.Draw(projection, view, lightDirection, model, runtimeMS()); //Using the abstraction of the draw function, so that different shaders for the same object can be used.
+
+
 		hitBoxShader.use();
 		calculateHitbox(hitBoxModel, hitBoxShader, shipPosition, shipAngles);
 		hitBoxShader.setBool("showHitBox", showHitBox);
 		hitBoxShader.setMat4("projection", projection);
 		hitBoxShader.setMat4("view", view);
 		hitBoxModel.Draw(hitBoxShader);
+
+
+#ifdef skybox
 
 		skyBoxShader.use();
 
@@ -227,8 +232,9 @@ int main() {
 		skyBoxShader.setMat4("skymodel", skymodel);
 		skyBoxShader.setMat4("view", view);
 		skyBoxModel.Draw(skyBoxShader);
-		
+#endif
 
+#ifdef reticle
 		reticleShader.use();
 		
 		//reticleTrans = glm::translate(reticleTrans, glm::vec3(ship.reticlePosition,-5.0f));
@@ -236,8 +242,10 @@ int main() {
 		reticleShader.setMat4("reticleTrans", reticleTrans);
 		reticleShader.setMat4("projection", projection);
 		reticleShader.setMat4("view", view);
-		reticleModel.Draw(reticleShader);
 		
+
+		reticleModel.Draw(reticleShader);
+#endif		
 		
 		//Process input
 		//Render Level

@@ -7,10 +7,11 @@ in vec3 Normal;
 
 uniform sampler2D ourTexture;
 uniform vec3 lightDirection;
+uniform float time;
 
 void main()
 {
 //FragColor = vec4(0.5,0.5,0.5,1.0);
 
-    FragColor = dot(lightDirection,Normal)*texture(ourTexture, TexCoord);
+    FragColor = vec4(1.0)*(texture(ourTexture, TexCoord)) + vec4(abs(sin(time))/4);
 }

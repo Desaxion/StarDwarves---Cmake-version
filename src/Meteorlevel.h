@@ -65,12 +65,23 @@ public:
 			model = glm::rotate(model, meteors[i].Rotation.z, glm::vec3(0, 0, 1));
 			model = glm::scale(model, meteors[i].Scale);
 
+			glm::mat4 rotation = glm::mat4(1.0f);
+			rotation = glm::rotate(rotation, meteors[i].Rotation.x, glm::vec3(1, 0, 0));
+			rotation = glm::rotate(rotation, meteors[i].Rotation.y, glm::vec3(0, 1, 0));
+			rotation = glm::rotate(rotation, meteors[i].Rotation.z, glm::vec3(0, 0, 1));
+
+
 		/*	for (int k = 0; k < meteors[i].theMeteor.meshes[0].vertices.size(); k++) {
 				meteors[i].meteorShader.setVec3("normal", meteors[i].theMeteor.meshes[0].vertices[k].Normal;)
 			}*/
 
+			meteors[i].meteorShader.setVec3("meteorPosition", meteors[i].Position);
 			meteors[i].meteorShader.setVec3("shipDirection", ship.shipDirection());
+			meteors[i].meteorShader.setVec3("lightDirection", lightDirection);
 
+			meteors[i].meteorShader.setVec3("shipPosition", glm::vec3(ship.spacePosition, 0.0));
+
+			meteors[i].meteorShader.setMat4("rotation", rotation);
 			meteors[i].meteorShader.setMat4("model", model);
 			meteors[i].meteorShader.setMat4("projection", projection);
 			meteors[i].meteorShader.setMat4("view", view);

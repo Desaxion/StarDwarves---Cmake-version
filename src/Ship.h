@@ -21,13 +21,57 @@ public:
 	};
 
 
-
 	Ship() {	
 	};
 
 	glm::vec2 spacePosition = glm::vec2(0, 0);
 	glm::vec2 reticlePosition = glm::vec2(0, 0);
+	
+	void Draw(glm::mat4 projection, glm::mat4 view, glm::vec3 lightDirection, glm::mat4 model, float runtime) {
+		//Draw the ship using its main shader, instead of the engines
+		
+		int engineIndex0 = 55;
+		int engineIndex1 = 58;
+		int engineIndex2 = 61;
 
+		mainShader->use();
+
+		mainShader->setMat4("projection", projection);
+		mainShader->setMat4("view", view);
+		mainShader->setVec3("lightDirection", lightDirection);
+		mainShader->setMat4("model", model);
+
+
+		//could have done the following using if-statements instead, but wanted a more streamlined process (Not sure if good though)
+		for (int i = 0; i < engineIndex0; i++) {
+			shipModel->meshes[i].Draw(*mainShader);
+		}
+
+		for (int i = engineIndex0 + 1; i < engineIndex1; i++) {
+			shipModel->meshes[i].Draw(*mainShader);
+		}
+
+		for (int i = engineIndex1 + 1; i < engineIndex2; i++) {
+			shipModel->meshes[i].Draw(*mainShader);
+		}
+
+		for (int i = engineIndex2 + 1; i < shipModel->meshes.size(); i++) {
+			shipModel->meshes[i].Draw(*mainShader);
+		}
+
+
+		engineShader->use();
+
+		engineShader->setMat4("projection", projection);
+		engineShader->setMat4("view", view);
+		engineShader->setVec3("lightDirection", lightDirection);
+		engineShader->setMat4("model", model);
+		engineShader->setFloat("time", runtime);
+
+		shipModel->meshes[engineIndex0].Draw(*engineShader);
+		shipModel->meshes[engineIndex1].Draw(*engineShader);
+		shipModel->meshes[engineIndex2].Draw(*engineShader);
+	}
 //#define invertYAxis
 	void manuvre(Movement direction, float deltaTime) {
         float v = MovementSpeed * deltaTime;
@@ -121,7 +165,18 @@ public:
 #endif
 
 	glm::vec3 shipDirection() {
-		return glm::normalize(glm::vec3(reticlePosition, 5.0f) - glm::vec3(spacePosition, 0.0));
+		glm::mat4 rot = glm::mat4(1.0f);
+
+		glm::vec3 rotation = shipAngles();
+		rot = glm::rotate(rot, rotation.x, glm::vec3(1, 0, 0));
+		rot = glm::rotate(rot, rotation.y, glm::vec3(0, 1, 0));
+		rot = glm::rotate(rot, rotation.z, glm::vec3(0, 0, 1));
+
+		glm::vec4 temp = glm::vec4(direction, 1.0);
+
+		temp = rot*temp;
+
+		return glm::normalize(temp);
 	}
 
 	glm::vec3 shipAngles() {
@@ -135,10 +190,14 @@ public:
 		return glm::vec3(theta, -phi, alpha);
 	}
 
+	Shader* mainShader;
+	Shader* engineShader;
+	Model* shipModel;
+
 	glm::vec3 shipScale = glm::vec3(0.05f);
 
 private:
-
+	glm::vec3 direction = glm::vec3(0, 0, -1); //Ship is facing negative x-axis.
 
 	glm::vec2 acceleration = glm::vec2(0, 0);
 	glm::vec2 velocity = glm::vec2(0, 0);

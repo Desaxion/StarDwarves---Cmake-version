@@ -11,11 +11,13 @@ layout (location = 2) in vec2 aTexCoord;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 model;
+uniform mat4 rotation;
+
 
 out vec3 FragPosition;
 out vec3 Normal;
 
-vec4 tempNormal =  vec4(aNormal, 1.0);
+vec4 tempNormal =  rotation*vec4(aNormal, 1.0);
 
 
 
@@ -70,8 +72,8 @@ void main()
     //	displacement += gradientNoise(aPos) *displacementScaling;
     //}
 
-    //Normal = aNormal;
-    tempNormal = normalize(model*tempNormal);
+    //Normal = rotation*vec4(aNormal);
+    //tempNormal = rotation*tempNormal;
     Normal = tempNormal.xyz;
     vec4 tempPosition = projection*view*model*vec4(aPos, 1.0);
     FragPosition = tempPosition.xyz;
