@@ -23,6 +23,7 @@ public:
 	glm::vec3 Rotation = glm::vec3(0.0, 0.0, 0.0);// 
 	glm::vec3 Scale = glm::vec3(0.50);//glm::vec3(noise1(runtme() + runtimeMS() * msScale));
 	
+	float startingSpeed = 0;
 
 	float displacementVelocity = 0;
 	int octaves = 8;
@@ -35,7 +36,8 @@ public:
 		Position = glm::vec3(noise1(runtime() + runtimeMS() * msScale) * noise1Scale - cos(runtimeMS()), noise1((runtime() + runtimeMS() * msScale) + 44) * noise1Scale, -10.0f); //random position
 		Rotation = glm::vec3(noise1(runtime() + runtimeMS() * msScale) * noise1Scale * noise1Scale + runtimeMS(), noise1(runtime() + runtimeMS() * msScale) + runtimeMS()/4.0, noise1(runtime() + runtimeMS() * msScale) * noise1Scale); //Rotation around its own axis
 		Scale = glm::vec3(abs(noise1(runtime() + runtimeMS() * msScale + 2.7))*noise1Scale*MakeItSmaller);
-	
+		startingSpeed = abs(noise1(runtime() + runtimeMS() * msScale + 2.7));
+
 		glm::vec3 tempPos = theMeteor.meshes[0].vertices[0].Position;
 
 
@@ -55,6 +57,15 @@ public:
 				
 			}
 
+			//Calculate the new normal
+			/*glm::mat4 rot = glm::mat4(1.0f);
+
+			glm::vec3 Rotation = glm::vec3(acos(displacement),asin(displacement),);
+
+			rot = glm::rotate(rot, Rotation.x, glm::vec3(1, 0, 0));
+			rot = glm::rotate(rot, Rotation.y, glm::vec3(0, 1, 0));
+			rot = glm::rotate(rot, Rotation.z, glm::vec3(0, 0, 1));
+			*/
 			theMeteor.meshes[0].vertices[i].Position += displacement * normalize(displacementDirection) * displacementScaling;//The displacement is added in the direction of the normal 
 	
 		}

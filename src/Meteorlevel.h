@@ -9,23 +9,26 @@ class Meteorlevel : public Level
 public:
 
 	int numberOfMeteorsLimit = 50;
-	int milliSecsBetweenSpawns = 800;
+	int milliSecsBetweenSpawns = 10;
 	int spawnCluster = 3;
-	int prevSpawnTime = 0;
+	int prevSpawnTime = milliSecsBetweenSpawns;
 
 	std::vector<Meteor> meteors;
 
 	void generate() override {
+		int time = runtimeMS();
+		
 		//Make sure that the meteor is actually to be spawned. This will only spawn one meteor at a time.
-			//Make the spawn random
-		if (meteors.size() < numberOfMeteorsLimit && prevSpawnTime != runtimeMS()) {
+			//Make the spawn random 
+		// Look at this next
+		if (meteors.size() < numberOfMeteorsLimit && (time % milliSecsBetweenSpawns == 0)) {
 			for (int k = 0; k < spawnCluster; k++) {
 				Meteor newMet;
 				//glm::mat4 model = newMet.theMeteor.update(newMet.Position, newMet.Rotation, newMet.Scale);
-				prevSpawnTime = runtimeMS();
+
 
 				meteors.push_back(newMet);
-
+				
 
 				for (int i = 0; i < newMet.theMeteor.meshes.size(); i++) {
 					meshes.push_back(newMet.theMeteor.meshes[i]); //Adding the meshes of each meteor in to the level so that we can check for collision
@@ -102,7 +105,7 @@ public:
 				it = meteors.erase(it); //removing the element
 			}
 			if (it != meteors.end()) {
-			meteors[i].Position.z += speed * deltaTime;
+			meteors[i].Position.z += (speed + meteors[i].startingSpeed) * deltaTime;
 			meteors[i].Rotation += glm::vec3(1.0) * deltaTime;
 			//Rotation will also have to affect the normals!!
 
