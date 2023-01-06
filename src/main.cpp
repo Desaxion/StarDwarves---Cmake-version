@@ -193,11 +193,14 @@ int main() {
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::vec3 shipAngles = ship.shipAngles();
-		float viewamount = 0.25f;
-		/*
+
+		float viewamount = 0.025f;
+
+		view = glm::translate(view, glm::vec3(shipAngles.y * viewamount, -shipAngles.x * viewamount, 0));
+
 		view = glm::rotate(view, -shipAngles.x*viewamount, glm::vec3(1.0f, 0.0f, 0.0f));
 		view = glm::rotate(view, -shipAngles.y*viewamount, glm::vec3(0.0f, 1.0f, 0.0f));
-		*/
+		
 		float time = (float)glfwGetTime();
 
 		glm::vec3 shipPosition = glm::vec3(ship.calculateShipPosition(deltaTime), 0.0f);
@@ -231,6 +234,7 @@ int main() {
 		skyBoxShader.setMat4("projection", projection);
 		skyBoxShader.setMat4("skymodel", skymodel);
 		skyBoxShader.setMat4("view", view);
+		skyBoxShader.setFloat("time", time);
 		skyBoxModel.Draw(skyBoxShader);
 #endif
 

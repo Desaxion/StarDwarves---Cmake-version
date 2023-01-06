@@ -8,24 +8,24 @@ class Meteorlevel : public Level
 {
 public:
 
-	int numberOfMeteorsLimit = 50;
-	int milliSecsBetweenSpawns = 10;
+	int numberOfMeteorsLimit = 35;
+	int milliSecsBetweenSpawns = 50;
 	int spawnCluster = 3;
-	int prevSpawnTime = milliSecsBetweenSpawns;
+	int prevSpawnTime = 0;
 
 	std::vector<Meteor> meteors;
 
 	void generate() override {
-		int time = runtimeMS();
+		int time = runtime();
 		
 		//Make sure that the meteor is actually to be spawned. This will only spawn one meteor at a time.
 			//Make the spawn random 
 		// Look at this next
-		if (meteors.size() < numberOfMeteorsLimit && (time % milliSecsBetweenSpawns == 0)) {
+		if (meteors.size() < numberOfMeteorsLimit && (prevSpawnTime != time )) {
 			for (int k = 0; k < spawnCluster; k++) {
 				Meteor newMet;
 				//glm::mat4 model = newMet.theMeteor.update(newMet.Position, newMet.Rotation, newMet.Scale);
-
+				prevSpawnTime = time;
 
 				meteors.push_back(newMet);
 				
