@@ -21,6 +21,10 @@ public:
 
 	std::vector<BoundingBox> boundingBoxes;
 
+	glm::vec3 lightDirection;
+	glm::vec3 lightColor;
+
+
 private:
 
 

@@ -13,6 +13,11 @@ public:
 	int spawnCluster = 3;
 	int prevSpawnTime = 0;
 
+
+	glm::vec3 lightDirection = glm::normalize(glm::vec3(2, 1, 0));
+	glm::vec3 lightColor = glm::vec3(1.0f);
+
+
 	std::vector<Meteor> meteors;
 
 	void generate() override {
