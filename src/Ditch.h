@@ -6,8 +6,22 @@
 class Ditch {
 public:
 
-	float maxHeight = 0.1;
-	float minHeight = -0.1;
+	// The plane size in vertices
+	const int VER_LENGTH = 33;
+	const int VER_WIDTH = 9;
+
+	// The distance between vertices
+	float verStepX = 0.0f;
+	float verStepZ = 0.0f;
+
+	// The plane size
+	float planeLength = 0.0f;
+	float planeWidth = 0.0f;
+
+	float maxX = 0.0f;
+	float minX = 0.0f;
+	float maxZ = 0.0f;
+	float minZ = 0.0f;
 
 	glm::vec3 Position = glm::vec3(0.0, 0.0, 0.0f);//
 	glm::vec3 Rotation = glm::vec3(0.0, 0.0, 0.0);// 
@@ -18,6 +32,31 @@ public:
 	int octaves = 8;
 
 	Ditch() {
+
+		// Loop through all vertices and check their in bounds
+		for (int i = 0; i < theDitch.meshes[0].vertices.size(); i++) {
+			if (theDitch.meshes[0].vertices[i].Position.x > maxX) {
+				maxX = theDitch.meshes[0].vertices[i].Position.x;
+			}
+			else if (theDitch.meshes[0].vertices[i].Position.x < minX) {
+				minX = theDitch.meshes[0].vertices[i].Position.x;
+			}
+
+			if (theDitch.meshes[0].vertices[i].Position.z > maxZ) {
+				maxZ = theDitch.meshes[0].vertices[i].Position.z;
+			}
+			else if (theDitch.meshes[0].vertices[i].Position.z < minZ) {
+				minZ = theDitch.meshes[0].vertices[i].Position.z;
+			}
+		}
+
+		verStepZ = abs((maxZ-minZ)/VER_LENGTH);
+		verStepX = abs((maxX - minX) / VER_WIDTH);
+
+		if (vertexAt(2*verStepX, 5*verStepZ)) {
+			std::cout << "APA";
+		}
+
 
 		//The individual seed of the meteor is set as the runtime
 		displace(runtimeMS());
@@ -33,49 +72,55 @@ public:
 	}*/
 
 	// Create planes to build the ditch, add noise and move them to create the ditch. 
-	/*
-		void plane(){
+	/*void plane() {
 
 
+	}*/
+
+	//
+	Vertex* vertexAt(float widthPos, float lengthPos) {
+		for (int i = 0; i < theDitch.meshes[0].vertices.size(); i++) {
+			if (theDitch.meshes[0].vertices[i].Position.x == widthPos) {
+				if (theDitch.meshes[0].vertices[i].Position.z == lengthPos) {
+					return &theDitch.meshes[0].vertices[i];
+				}
+			}
 		}
-	*/
+
+		return nullptr;
+	}
+	
 
 	//Generates the shapes of the ditch
 	//Generates the random shape for the meteorite.
 	void displace(float individualSeed) {
 		//This is redundant for making the whole thing displaced.
 
-
 		//Displace every vertex, and do it to follow the 1/f rule!!
 		for (int i = 0; i < theDitch.meshes[0].vertices.size(); i++) {
 
 			float displacement = 0.0f;
-			glm::vec3 displacementDirection = glm::vec3(theDitch.meshes[0].vertices[i].Position - Position);
 
 			//The model contains 3-4 vertices in each position, and a vertex is only part of one (?) triangle, therefore a vertex group needs to be modified.
 			for (int k = 1; k < octaves + 1; k++) {
-				displacement += gradientNoise(glm::vec3(theDitch.meshes[0].vertices[i].Position.x * individualSeed * pow(2, octaves),
-					theDitch.meshes[0].vertices[i].Position.y * individualSeed * pow(2, octaves),
-					theDitch.meshes[0].vertices[i].Position.z * individualSeed * pow(2, octaves))) / pow(2, octaves);
+				displacement += noise(glm::vec2((theDitch.meshes[0].vertices[i].Position.x + 0.02) * individualSeed * pow(2, octaves),
+												(theDitch.meshes[0].vertices[i].Position.z + 0.06) * individualSeed * pow(2, octaves))) / pow(2, octaves);
 
 			}
 
-			//Calculate the new normal
-			/*glm::mat4 rot = glm::mat4(1.0f);
+			//displacement = theDitch.meshes[0].vertices[i].Position.x + theDitch.meshes[0].vertices[i].Position.z;
 
-			glm::vec3 Rotation = glm::vec3(acos(displacement),asin(displacement),);
-
-			rot = glm::rotate(rot, Rotation.x, glm::vec3(1, 0, 0));
-			rot = glm::rotate(rot, Rotation.y, glm::vec3(0, 1, 0));
-			rot = glm::rotate(rot, Rotation.z, glm::vec3(0, 0, 1));
-			*/
-			theDitch.meshes[0].vertices[i].Position += displacement * normalize(displacementDirection) * displacementScaling;//The displacement is added in the direction of the normal 
+			theDitch.meshes[0].vertices[i].Position.y += displacement * displacementScaling;//The displacement is added in the direction of the normal 
 
 		}
+		
+		// Calculate new normals
+		
+
 
 	}
 
-	Model theDitch = Model("../assets/models/ditch/ditch.obj");
+	Model theDitch = Model("../assets/models/ditch/plane.obj");
 	Shader ditchShader = Shader("../src/shaders/ditch.vs", "../src/shaders/ditch.fs");
 
 private:

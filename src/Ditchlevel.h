@@ -15,10 +15,15 @@ public:
 
 		// Create the ditch and put it in a vector (ditchv)
 		Ditch newDitch;
-		ditchv.push_back(newDitch);
+		if (ditchv.size() == 0){
+			ditchv.push_back(newDitch);
 
-		// Push the vector into Level so it can draw the mesh
-		meshes.push_back(newDitch.theDitch.meshes[0]);
+			// Push the vector into Level so it can draw the mesh
+			meshes.push_back(newDitch.theDitch.meshes[0]);
+		}
+		
+
+		
 
 		/*
 			Add planes, rotate, translate, 
