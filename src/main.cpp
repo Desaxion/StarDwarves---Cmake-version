@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Meteorlevel.h"
+#include "Ditchlevel.h"
 
 //Space texture image <a href="https://www.freepik.com/free-photo/milky-way-galaxy-night_13249998.htm#query=space&position=5&from_view=search&track=sph">Image by tawatchai07</a> on Freepik
 
@@ -132,9 +133,11 @@ int main() {
 	//Game logic, selecting level and such
 	Level* selectedLevel;
 	Meteorlevel meteorlevel;
+	Ditchlevel ditchlevel;
 
 	//Maybe create a button in the loop to check which level to be selected
-	selectedLevel = &meteorlevel; //At this moment, selecting the meteor level
+	//selectedLevel = &meteorlevel; //At this moment, selecting the meteor level
+	selectedLevel = &ditchlevel; //At this moment, selecting the ditch level
 
 
 	////////////    MAIN     RENDERING      LOOP    //////////////
