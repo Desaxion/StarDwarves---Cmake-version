@@ -13,7 +13,7 @@
 
 #define MACOS false
 
-glm::vec3 lightDirection = glm::normalize(glm::vec3(2, 1, 0));
+//glm::vec3 lightDirection = glm::normalize(glm::vec3(2, 1, 0));
 
 const float EPSILON = 0.00000001;
 
@@ -113,7 +113,7 @@ void processInput(GLFWwindow* window) {
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	if (firstMouse)
+	/*if (firstMouse)
 	{
 		lastX = xpos;
 		lastY = ypos;
@@ -141,7 +141,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 	direction.y = sin(glm::radians(pitch));
 	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	camera.Front = glm::normalize(direction);
+	camera.Front = glm::normalize(direction);*/
 }
 
 

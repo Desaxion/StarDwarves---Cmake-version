@@ -13,10 +13,23 @@ public:
 	int spawnCluster = 3;
 	int prevSpawnTime = 0;
 
-
+	bool fog = false;
+	
 	glm::vec3 lightDirection = glm::normalize(glm::vec3(2, 1, 0));
 	glm::vec3 lightColor = glm::vec3(1.0f);
+    float ambientScaling = 0.2;
 
+	glm::vec3 getLevelColor() override {
+
+		return lightColor;
+	}
+	glm::vec3 getLightDirection() override {
+		return lightDirection;
+	}
+
+	float getAmbientScaling() override {
+		return ambientScaling;
+	}
 
 	std::vector<Meteor> meteors;
 
@@ -57,7 +70,7 @@ public:
 		}
 	}
 
-	void draw(glm::mat4 projection, glm::mat4 view, glm::vec4 metColor) override {
+	void draw(glm::mat4 projection, glm::mat4 view, glm::vec4 metColor, float dt) override {
 		for (int i = 0; i < meteors.size(); i++) {
 			meteors[i].meteorShader.use();
 
@@ -86,6 +99,7 @@ public:
 			meteors[i].meteorShader.setVec3("meteorPosition", meteors[i].Position);
 			meteors[i].meteorShader.setVec3("shipDirection", ship.shipDirection());
 			meteors[i].meteorShader.setVec3("lightDirection", lightDirection);
+			meteors[i].meteorShader.setVec3("lightColor", lightColor);
 
 			meteors[i].meteorShader.setVec3("shipPosition", glm::vec3(ship.spacePosition, 0.0));
 
@@ -102,7 +116,7 @@ public:
 
 		generate();
 		//boundingBoxes.clear();
-
+	
 		std::vector<Meteor>::iterator it = meteors.begin();
 		for (int i = 0; i < meteors.size(); i++) {
 			//Calculate new position for the meteor

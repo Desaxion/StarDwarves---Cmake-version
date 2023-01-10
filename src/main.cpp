@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Meteorlevel.h"
+#include "Planetlevel.h"
 
 //Space texture image <a href="https://www.freepik.com/free-photo/milky-way-galaxy-night_13249998.htm#query=space&position=5&from_view=search&track=sph">Image by tawatchai07</a> on Freepik
 
@@ -17,9 +18,41 @@ const unsigned int HEIGHT = DEFAULT_HEIGHT; //1000
 #define skybox
 
 
+
 int main() {
+
+	//Game logic, selecting level and such
+	Level* selectedLevel;
+
+	int input;
+	bool quit = false;
+
+	do
+	{
+		Meteorlevel meteorlevel;
+		Planetlevel planetlevel;
+		std::cout << "Welcome! Please select level: \n Press 1 for Meteor \n Press 2 for Lava \n Press other to quit ";
+
+
+		std::cin >> input;
+		switch (input) {
+		case 1: selectedLevel = &meteorlevel;
+			break;
+		case 2:	selectedLevel = &planetlevel;
+			break;
+
+		default:
+			quit = true;
+		}
+
+	if(!quit){
+
+
+
+
 	time(&start);//starts timer in s and ms
 	startMS = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
 
 
 	//Begin with instantiating the window
@@ -50,14 +83,12 @@ int main() {
 
 	//We load in all of the different shaders here
 	////LOADING IN SHIP
+
 	Model shipModel("../assets/models/ship/ship.obj");
 	Shader shipShader("../src/shaders/ship.vs", "../src/shaders/ship.fs");
 	Shader engineShader("../src/shaders/shipEngine.vs", "../src/shaders/shipEngine.fs");
 
-	ship.shipModel = &shipModel;
-	ship.mainShader = &shipShader;
 
-	ship.engineShader = &engineShader;
 
 	Model skyBoxModel("../assets/models/skyBox/skyBoxModel.obj");
 	Shader skyBoxShader("../src/shaders/skyBox.vs", "../src/shaders/skyBox.fs");
@@ -67,7 +98,14 @@ int main() {
 
 	Model hitBoxModel = Model("../assets/models/shiphitbox/ShipHitBox.obj");
 	Shader hitBoxShader("../src/shaders/hitbox.vs", "../src/shaders/hitbox.fs");
+
 	//The hitboxmodel is included within the ship so that its position can be calculated at the same time as the ship.
+
+	ship.shipModel = &shipModel;
+	ship.mainShader = &shipShader;
+
+	ship.engineShader = &engineShader;
+
 
 
 
@@ -122,6 +160,7 @@ int main() {
 	
 	The third argument specifies the type of the data which is GL_FLOAT (a vec* in GLSL consists of floating point values).
 	
+	
 	The next argument specifies if we want the data to be normalized. If we're inputting integer data types (int, byte) and we've set this to GL_TRUE, the integer data is normalized to 0 (or -1 for signed data) and 1 when converted to float. This is not relevant for us so we'll leave this at GL_FALSE.
 	
 	The fifth argument is known as the stride and tells us the space between consecutive vertex attributes. Since the next set of position data is located exactly 3 times the size of a float away we specify that value as the stride. Note that since we know that the array is tightly packed (there is no space between the next vertex attribute value) we could've also specified the stride as 0 to let OpenGL determine the stride (this only works when values are tightly packed). Whenever we have more vertex attributes we have to carefully define the spacing between each vertex attribute but we'll get to see more examples of that later on.
@@ -129,149 +168,158 @@ int main() {
 	The last parameter is of type void* and thus requires that weird cast. This is the offset of where the position data begins in the buffer. Since the position data is at the start of the data array this value is just 0. We will explore this parameter in more detail later on
 	*/
 
-	//Game logic, selecting level and such
-	Level* selectedLevel;
-	Meteorlevel meteorlevel;
+
+
 
 	//Maybe create a button in the loop to check which level to be selected
-	selectedLevel = &meteorlevel; //At this moment, selecting the meteor level
-
-
+ //At this moment, selecting the meteor level
+	//
+	//Get the levels ambientlight
+	glm::vec3 levelColor = selectedLevel->getLevelColor();
+	glm::vec3 lightDirection = selectedLevel->getLightDirection();
+	float ambientScaling = selectedLevel->getAmbientScaling();
 	////////////    MAIN     RENDERING      LOOP    //////////////
 
 	//Enabling depth test
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
-
-	while(!glfwWindowShouldClose(window)) { //Check if window is instructed to close
-		//We redraw screen every frame, thus we clear the screen in beginning of every loop iteration
-		selectedLevel->updateSpeed(runtime());
-		
 	
-		
-		//for (auto bb : selectedLevel->boundingBoxes) {
-		//std::cout << "(" << bb.getMin().x << "," << bb.getMin().y << "," << bb.getMin().z << "," << "), (" << bb.getMax().x << "," << bb.getMax().y << "," << bb.getMax().z << ")\n";
-		//}
+		while (!glfwWindowShouldClose(window)) { //Check if window is instructed to close
+			//We redraw screen every frame, thus we clear the screen in beginning of every loop iteration
+			selectedLevel->updateSpeed(runtime());
 
 
 
-		glm::vec4 metColor = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
-
-		if (collisionCheck(hitBoxModel, selectedLevel)) {
-			
-
-			metColor = glm::vec4(0.7f, 0.3f, 0.2f,1.0f);
-
-			
-
-			//std::cout << "COLLISION\n";
-		}
-		else {
-			//std::cout << "NO COLLISION\n";
-			metColor = glm::vec4(0.8f, 0.7f, 0.2f,1.0f);
-		}
-
-		
-		
+			//for (auto bb : selectedLevel->boundingBoxes) {
+			//std::cout << "(" << bb.getMin().x << "," << bb.getMin().y << "," << bb.getMin().z << "," << "), (" << bb.getMax().x << "," << bb.getMax().y << "," << bb.getMax().z << ")\n";
+			//}
 
 
-		//calculating time variables
-		float currentFrame = static_cast<float>(glfwGetTime());
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
 
-		processInput(window);
+			glm::vec4 metColor = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
 
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //Specify the color of the cleariness
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Specify which buffer we clear (the others are GL_STENCIL_BUFFER_BIT and GL_DEPTH_BUFFER_BIT)
-		
-		//glBindVertexArray(VAO);	//Specify upcoming objects to be rendered
-		//glDrawArrays(GL_TRIANGLES,0,3);//Draw the object! Second argument stands for index of starting vertex, last argument for amount of vertices to be drawn.
-
-		shipShader.use(); //Tell the render which shader to use for upcoming objects
-		// view/projection transformations
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-		glm::mat4 view = camera.GetViewMatrix();
-		glm::vec3 shipAngles = ship.shipAngles();
-
-		float viewamount = 0.025f;
-
-		view = glm::translate(view, glm::vec3(shipAngles.y * viewamount, -shipAngles.x * viewamount, 0));
-
-		view = glm::rotate(view, -shipAngles.x*viewamount, glm::vec3(1.0f, 0.0f, 0.0f));
-		view = glm::rotate(view, -shipAngles.y*viewamount, glm::vec3(0.0f, 1.0f, 0.0f));
-		
-		float time = (float)glfwGetTime();
-
-		glm::vec3 shipPosition = glm::vec3(ship.calculateShipPosition(deltaTime), 0.0f);
-
-		//std::cout << "(" << shipModel.meshes[2].vertices[0].Position.x << "," << shipModel.meshes[2].vertices[0].Position.y << "," << shipModel.meshes[2].vertices[0].Position.z << ")" << "\n";
-		//std::cout << "(" << hitBoxModel.meshes[0].vertices[17].Position.x << "," << hitBoxModel.meshes[0].vertices[17].Position.y << "," << hitBoxModel.meshes[0].vertices[17].Position.z << ")" << "\n";
-		//std::cout << "(" << shipAngles.x << ", " << shipAngles.y << ", " << shipAngles.z << ")\n";
-	//	std::cout << "(" << hitBoxModel.Position.x << ", " << hitBoxModel.Position.y << ", " << hitBoxModel.Position.z << ")\n";
-		//std::cout << "(" << shipPosition.x << ", " << shipPosition.y << ", " << shipPosition.z << ")\n";
-
-		glm::mat4 model = shipModel.update(shipPosition, shipAngles, glm::vec3(ship.shipScale));
-	
-		ship.Draw(projection, view, lightDirection, model, runtimeMS()); //Using the abstraction of the draw function, so that different shaders for the same object can be used.
+			if (collisionCheck(hitBoxModel, selectedLevel)) {
 
 
-		hitBoxShader.use();
-		calculateHitbox(hitBoxModel, hitBoxShader, shipPosition, shipAngles);
-		hitBoxShader.setBool("showHitBox", showHitBox);
-		hitBoxShader.setMat4("projection", projection);
-		hitBoxShader.setMat4("view", view);
-		hitBoxModel.Draw(hitBoxShader);
+				metColor = glm::vec4(0.7f, 0.3f, 0.2f, 1.0f);
+
+
+
+				//std::cout << "COLLISION\n";
+			}
+			else {
+				//std::cout << "NO COLLISION\n";
+				metColor = glm::vec4(0.8f, 0.7f, 0.2f, 1.0f);
+			}
+
+
+
+
+
+			//calculating time variables
+			float currentFrame = static_cast<float>(glfwGetTime());
+			deltaTime = currentFrame - lastFrame;
+			lastFrame = currentFrame;
+
+			processInput(window);
+
+			glClearColor(0.8, 0.67, 0.54, 1.0f); //Specify the color of the cleariness
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Specify which buffer we clear (the others are GL_STENCIL_BUFFER_BIT and GL_DEPTH_BUFFER_BIT)
+
+			//glBindVertexArray(VAO);	//Specify upcoming objects to be rendered
+			//glDrawArrays(GL_TRIANGLES,0,3);//Draw the object! Second argument stands for index of starting vertex, last argument for amount of vertices to be drawn.
+
+			shipShader.use(); //Tell the render which shader to use for upcoming objects
+			// view/projection transformations
+			glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+			glm::mat4 view = camera.GetViewMatrix();
+			glm::vec3 shipAngles = ship.shipAngles();
+
+			float viewamount = 0.025f;
+
+			view = glm::translate(view, glm::vec3(shipAngles.y * viewamount, -shipAngles.x * viewamount, 0));
+
+			view = glm::rotate(view, -shipAngles.x * viewamount, glm::vec3(1.0f, 0.0f, 0.0f));
+			view = glm::rotate(view, -shipAngles.y * viewamount, glm::vec3(0.0f, 1.0f, 0.0f));
+
+			float time = (float)glfwGetTime();
+
+			glm::vec3 shipPosition = glm::vec3(ship.calculateShipPosition(deltaTime), 0.0f);
+
+			//std::cout << "(" << shipModel.meshes[2].vertices[0].Position.x << "," << shipModel.meshes[2].vertices[0].Position.y << "," << shipModel.meshes[2].vertices[0].Position.z << ")" << "\n";
+			//std::cout << "(" << hitBoxModel.meshes[0].vertices[17].Position.x << "," << hitBoxModel.meshes[0].vertices[17].Position.y << "," << hitBoxModel.meshes[0].vertices[17].Position.z << ")" << "\n";
+			//std::cout << "(" << shipAngles.x << ", " << shipAngles.y << ", " << shipAngles.z << ")\n";
+		//	std::cout << "(" << hitBoxModel.Position.x << ", " << hitBoxModel.Position.y << ", " << hitBoxModel.Position.z << ")\n";
+			//std::cout << "(" << shipPosition.x << ", " << shipPosition.y << ", " << shipPosition.z << ")\n";
+
+			glm::mat4 model = shipModel.update(shipPosition, shipAngles, glm::vec3(ship.shipScale));
+
+			ship.Draw(projection, view, lightDirection, levelColor, model, runtimeMS(), ambientScaling); //Using the abstraction of the draw function, so that different shaders for the same object can be used.
+
+
+			hitBoxShader.use();
+			calculateHitbox(hitBoxModel, hitBoxShader, shipPosition, shipAngles);
+			hitBoxShader.setBool("showHitBox", showHitBox);
+			hitBoxShader.setMat4("projection", projection);
+			hitBoxShader.setMat4("view", view);
+			hitBoxModel.Draw(hitBoxShader);
 
 
 #ifdef skybox
+			if (selectedLevel != &planetlevel) {
+				skyBoxShader.use();
 
-		skyBoxShader.use();
-
-		//no need to update this
-		glm::mat4 skymodel = glm::mat4(1.0f);
-		skymodel = glm::translate(skymodel, glm::vec3(0.0f, 0.0f, 0.0f));
-		skyBoxShader.setMat4("projection", projection);
-		skyBoxShader.setMat4("skymodel", skymodel);
-		skyBoxShader.setMat4("view", view);
-		skyBoxShader.setFloat("time", time);
-		skyBoxModel.Draw(skyBoxShader);
+				//no need to update this
+				glm::mat4 skymodel = glm::mat4(1.0f);
+				skymodel = glm::translate(skymodel, glm::vec3(0.0f, 0.0f, 0.0f));
+				skyBoxShader.setMat4("projection", projection);
+				skyBoxShader.setMat4("skymodel", skymodel);
+				skyBoxShader.setMat4("view", view);
+				skyBoxShader.setFloat("time", time);
+				skyBoxModel.Draw(skyBoxShader);
+			}
 #endif
 
 #ifdef reticle
-		reticleShader.use();
-		
-		//reticleTrans = glm::translate(reticleTrans, glm::vec3(ship.reticlePosition,-5.0f));
-		glm::mat4 reticleTrans = reticleModel.update(glm::vec3(ship.reticlePosition, -5.0f),glm::vec3(0.0), glm::vec3(1.0f));
-		reticleShader.setMat4("reticleTrans", reticleTrans);
-		reticleShader.setMat4("projection", projection);
-		reticleShader.setMat4("view", view);
-		
+			reticleShader.use();
 
-		reticleModel.Draw(reticleShader);
+			//reticleTrans = glm::translate(reticleTrans, glm::vec3(ship.reticlePosition,-5.0f));
+			glm::mat4 reticleTrans = reticleModel.update(glm::vec3(ship.reticlePosition, -5.0f), glm::vec3(0.0), glm::vec3(1.0f));
+			reticleShader.setMat4("reticleTrans", reticleTrans);
+			reticleShader.setMat4("projection", projection);
+			reticleShader.setMat4("view", view);
+
+
+			reticleModel.Draw(reticleShader);
 #endif		
-		
-		//Process input
-		//Render Level
-		selectedLevel->update();
 
-		selectedLevel->draw(projection, view, metColor);
-		
-		//Display title screen
+			//Process input
+			//Render Level
+			selectedLevel->update();
 
-		//view controls, highscore and such
+			selectedLevel->draw(projection, view, metColor, time);
 
-		//PLAY
-		// Select level ----> Lets go
-		//Epic gaming
-		
-		glfwSwapBuffers(window); //Swaps buffers so it can begin writing to one buffer and reading from the other
-		glfwPollEvents(); //Check if glfw events are triggered (such as mouse and keyboard input)
-	
+			//Display title screen
+
+			//view controls, highscore and such
+
+			//PLAY
+			// Select level ----> Lets go
+			//Epic gaming
+
+			glfwSwapBuffers(window); //Swaps buffers so it can begin writing to one buffer and reading from the other
+			glfwPollEvents(); //Check if glfw events are triggered (such as mouse and keyboard input)
+
+		}
 	}
 
-	//Destroy all things related to glfw and close the program
 	glfwTerminate();
+	ship.spacePosition = glm::vec2(0);
+	} while (!quit);
+
+	//Destroy all things related to glfw and close the program
+
 	std::cout << "Application runtime: " << runtime() << " seconds. " << std::endl;
 
 	return 0;

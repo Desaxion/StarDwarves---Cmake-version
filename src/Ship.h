@@ -27,7 +27,7 @@ public:
 	glm::vec2 spacePosition = glm::vec2(0, 0);
 	glm::vec2 reticlePosition = glm::vec2(0, 0);
 	
-	void Draw(glm::mat4 projection, glm::mat4 view, glm::vec3 lightDirection, glm::mat4 model, float runtime) {
+	void Draw(glm::mat4 projection, glm::mat4 view, glm::vec3 lightDirection, glm::vec3 levelColor, glm::mat4 model, float runtime, float ambientScaling) {
 		//Draw the ship using its main shader, instead of the engines
 		
 		int engineIndex0 = 55;
@@ -40,6 +40,8 @@ public:
 		mainShader->setMat4("view", view);
 		mainShader->setVec3("lightDirection", lightDirection);
 		mainShader->setMat4("model", model);
+		mainShader->setVec3("lightColor", levelColor);
+		mainShader->setFloat("ambientScaling", ambientScaling);
 
 
 		//could have done the following using if-statements instead, but wanted a more streamlined process (Not sure if good though)
